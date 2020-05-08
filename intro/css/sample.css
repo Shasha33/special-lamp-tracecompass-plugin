@@ -1,0 +1,3 @@
+
+a#comtestuisample-introLink img { background-image : url(graphics/sample.gif); }
+a#comtestuisample-introLink:hover img { background-image : url(graphics/sample_hov.gif); }
