@@ -21,21 +21,18 @@ import java.util.Collection;
 
 public class JVMLttngTrace extends LttngUstTrace {
 	private Collection<ITmfEventAspect<?>> fUstTraceAspects = ImmutableSet.copyOf(LTTNG_UST_ASPECTS);
-	private ILttngUstEventLayout fLayout = null;
+	private JVMLttngEventLayout fLayout = null;
 	 
 	private static final Collection<ITmfEventAspect<?>> LTTNG_UST_ASPECTS;
 
 	static {
 		ImmutableSet.Builder<ITmfEventAspect<?>> builder = ImmutableSet.builder();
 	    builder.addAll(CtfTmfTrace.CTF_ASPECTS);
-//	    builder.add(UstDebugInfoBinaryAspect.INSTANCE);
-//	    builder.add(UstDebugInfoFunctionAspect.INSTANCE);
-//	    builder.add(UstDebugInfoSourceAspect.INSTANCE);
 	    LTTNG_UST_ASPECTS = builder.build();
 	 }
 	
 	public ILttngUstEventLayout getEventLayout() {
-        ILttngUstEventLayout layout = fLayout;
+		JVMLttngEventLayout layout = fLayout;
         if (layout == null) {
             throw new IllegalStateException("Cannot get the layout of a non-initialized trace!");
         }
@@ -48,12 +45,18 @@ public class JVMLttngTrace extends LttngUstTrace {
 	}
 	
 	@Override
+	public Iterable<ITmfEventAspect<?>> getEventAspects() {
+		return fUstTraceAspects;
+	}
+	
+	@Override
     public void initTrace(IResource resource, String path,
             Class<? extends ITmfEvent> eventType) throws TmfTraceException {
-        super.initTrace(resource, path, eventType);
+        System.out.println("init trace");
+		super.initTrace(resource, path, eventType);
 
         /* Determine the event layout to use from the tracer's version */
-        ILttngUstEventLayout layout = JVMLttngEventLayout.getInstance();
+        JVMLttngEventLayout layout = JVMLttngEventLayout.getInstance();
         fLayout = layout;
 
         ImmutableSet.Builder<ITmfEventAspect<?>> builder = ImmutableSet.builder();
@@ -63,7 +66,8 @@ public class JVMLttngTrace extends LttngUstTrace {
             builder.add(new ContextVtidAspect(layout));
         }
         if (checkFieldPresent(layout.contextVpid())) {
-            builder.add(new ContextVpidAspect(layout));
+        	System.out.println("vpid found");
+        	builder.add(new ContextVpidAspect(layout));
         }
         builder.addAll(createCounterAspects(this));
         fUstTraceAspects = builder.build();

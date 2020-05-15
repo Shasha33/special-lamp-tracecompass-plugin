@@ -13,7 +13,7 @@ import org.eclipse.tracecompass.analysis.os.linux.core.event.aspect.LinuxTidAspe
 import org.eclipse.tracecompass.analysis.profiling.core.callstack.CallStackStateProvider;
 import org.eclipse.tracecompass.internal.lttng2.ust.core.callstack.LttngUstCallStackProvider;
 import org.eclipse.tracecompass.internal.lttng2.ust.core.trace.layout.LttngUst20EventLayout;
-import org.eclipse.tracecompass.lttng2.ust.core.trace.LttngUstTrace;
+import org.eclipse.tracecompass.lttng2.ust.core.trace.*;
 import org.eclipse.tracecompass.lttng2.ust.core.trace.layout.ILttngUstEventLayout;
 import org.eclipse.tracecompass.statesystem.core.statevalue.ITmfStateValue;
 import org.eclipse.tracecompass.statesystem.core.statevalue.TmfStateValue;
@@ -32,7 +32,7 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
      * Version number of this state provider. Please bump this if you modify
      * the contents of the generated state history in some way.
      */
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     /** Event names indicating function entry */
     private final Set<String> funcEntryEvents;
@@ -44,6 +44,7 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
     
     public JVMCallStackProvider(ITmfTrace trace) {
         super(trace);
+        System.out.println("init callstack provider");
         if (trace instanceof JVMLttngTrace) {
             fLayout = ((JVMLttngTrace) trace).getEventLayout();
         } else {
@@ -87,18 +88,20 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
      */
     @Override
     protected boolean considerEvent(ITmfEvent event) {
-    	if (!(event instanceof CtfTmfEvent)) {
+    	System.out.println("consiider run");
+    	if (!(event instanceof LttngUstEvent)) {
             return false;
-        } else {
-        	return true;
         }
 //        Object tid = TmfTraceUtils.resolveEventAspectOfClassForEvent(event.getTrace(), LinuxTidAspect.class, event);
 //        return (tid instanceof Integer);
+    	// 
+    	return (UNKNOWN_PID != getThreadId(event));
     }
 
     @Override
     public @Nullable ITmfStateValue functionEntry(ITmfEvent event) {
         String eventName = event.getName();
+        System.out.println("found event" + eventName);
         if (!funcEntryEvents.contains(eventName)) {
             return null;
         }
@@ -130,7 +133,7 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
     protected int getProcessId(@NonNull ITmfEvent event) {
         /* We checked earlier that the "vtid" context is present */
 
-        Integer pid = (Integer) event.getContent().getField("_context.vpid").getValue();
+        Integer pid = (Integer) event.getContent().getField("context._vpid").getValue();
 //        Integer pid = TmfTraceUtils.resolveIntEventAspectOfClassForEvent(event.getTrace(), LinuxPidAspect.class, event);
         if (pid == null) {
             return UNKNOWN_PID;
@@ -142,7 +145,7 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
     protected long getThreadId(ITmfEvent event) {
         /* We checked earlier that the "vtid" context is present */
 
-        Integer tid = (Integer) event.getContent().getField("_context.tpid").getValue();
+        Integer tid = (Integer) event.getContent().getField("context._tpid").getValue();
 //        Integer tid = TmfTraceUtils.resolveIntEventAspectOfClassForEvent(event.getTrace(), LinuxTidAspect.class, event);
         if (tid == null) {
             return UNKNOWN_PID;
@@ -159,5 +162,47 @@ public class JVMCallStackProvider extends LttngUstCallStackProvider {
         long vtid = getThreadId(event);
         return (procName + Long.toString(vtid));
     }
-	
+    
+//    @Override
+//    public String functionEntry(ITmfEvent event) {
+//        String eventName = event.getName();
+//        if (!FUNC_ENTRY_EVENTS.contains(eventName)) {
+//            return null;
+//        }
+//        Long address = (Long) event.getContent().getField(FIELD_ADDR).getValue();
+//        return Long.toHexString(address);
+//    }
+//
+//    @Override
+//    public String functionExit(ITmfEvent event) {
+//        String eventName = event.getName();
+//        if (!FUNC_EXIT_EVENTS.contains(eventName)) {
+//            return null;
+//        }
+//        /*
+//         * The 'addr' field may or may not be present in func_exit events,
+//         * depending on if cyg-profile.so or cyg-profile-fast.so was used.
+//         */
+//        ITmfEventField field = event.getContent().getField(FIELD_ADDR);
+//        if (field == null) {
+//            return CallStackStateProvider.UNDEFINED;
+//        }
+//        Long address = (Long) field.getValue();
+//        return Long.toHexString(address);
+//    }
+
+//    @Override
+//    public String getThreadName(ITmfEvent event) {
+//        /* Class type and content was already checked if we get called here */
+//        ITmfEventField content = ((CtfTmfEvent) event).getContent();
+//        String procName = (String) content.getField(CONTEXT_PROCNAME).getValue();
+//        Long vtid = (Long) content.getField(CONTEXT_VTID).getValue();
+//
+//        if (procName == null || vtid == null) {
+//            throw new IllegalStateException();
+//        }
+//
+//        return new String(procName + '-' + vtid.toString());
+//    }
+
 }

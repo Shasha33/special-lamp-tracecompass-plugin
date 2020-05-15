@@ -483,10 +483,13 @@
         point="org.eclipse.linuxtools.tmf.core.analysis">
    		<module
             analysis_module="com.test.ui.sample.JVMCallStackProvider"
-            automatic="false"
+            automatic="true"
             id="com.test.ui.sample.jvm.callstack"
             name="Jvm CallStack">
       </module>
+      <tracetype
+      		id="com.test.ui.sample.jvm.tracetype">
+      </tracetype>
    </extension>
    <extension
          point="org.eclipse.linuxtools.tmf.ui.tracetypeui">
