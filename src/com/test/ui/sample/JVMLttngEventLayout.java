@@ -1,20 +1,30 @@
 package com.test.ui.sample;
 
 import org.eclipse.tracecompass.internal.lttng2.ust.core.trace.layout.DefaultUstEventLayout;
+import org.eclipse.tracecompass.internal.lttng2.ust.core.trace.layout.LttngUst20EventLayout;
 import org.eclipse.tracecompass.internal.lttng2.ust.core.trace.layout.LttngUst28EventLayout;
 
 @SuppressWarnings("restriction")
 public class JVMLttngEventLayout extends LttngUst20EventLayout {
-	private static final JVMLttngEventLayout INSTANCE = new JVMLttngEventLayout();
+	private static JVMLttngEventLayout INSTANCE = new JVMLttngEventLayout();
 	
-	    @Override
+	public static synchronized LttngUst20EventLayout getInstance() {
+		JVMLttngEventLayout instance = INSTANCE;
+        if (instance == null) {
+            instance = new JVMLttngEventLayout();
+            INSTANCE = instance;
+        }
+        return instance;
+    }
+	
+	@Override
     public String eventCygProfileFuncEntry() {
         return "hotspot:method__entry";
     }
 
     @Override
     public String eventCygProfileFastFuncEntry() {
-        return "hotspot:method__entry";
+        return "hs_private:safepoint__begin";
     }
 
     @Override
@@ -24,6 +34,6 @@ public class JVMLttngEventLayout extends LttngUst20EventLayout {
 
     @Override
     public String eventCygProfileFastFuncExit() {
-        return "hotspot:method__return";
+        return "hs_private:safepoint__end";
     }
 }

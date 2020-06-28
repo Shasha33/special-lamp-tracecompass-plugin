@@ -32,7 +32,7 @@ public class JVMCallStackAnalysis extends LttngUstCallStackAnalysis {
         Set<@NonNull TmfAbstractAnalysisRequirement> requirements = fAnalysisRequirements;
         if (requirements == null) {
         	JVMLttngTrace trace = (JVMLttngTrace) getTrace();
-        	JVMLttngEventLayout layout = JVMLttngEventLayout.getInstance();
+        	JVMLttngEventLayout layout = (JVMLttngEventLayout) JVMLttngEventLayout.getInstance();
             if (trace != null) {
                 layout = (JVMLttngEventLayout) trace.getEventLayout();
             }

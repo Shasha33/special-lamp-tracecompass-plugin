@@ -56,7 +56,7 @@ public class JVMLttngTrace extends LttngUstTrace {
 		super.initTrace(resource, path, eventType);
 
         /* Determine the event layout to use from the tracer's version */
-        JVMLttngEventLayout layout = JVMLttngEventLayout.getInstance();
+        JVMLttngEventLayout layout = (JVMLttngEventLayout) JVMLttngEventLayout.getInstance();
         fLayout = layout;
 
         ImmutableSet.Builder<ITmfEventAspect<?>> builder = ImmutableSet.builder();

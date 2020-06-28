@@ -488,6 +488,7 @@
             name="Jvm CallStack">
       </module>
       <tracetype
+      		class="com.test.ui.sample.JVMLttngTrace"
       		id="com.test.ui.sample.jvm.tracetype">
       </tracetype>
    </extension>
